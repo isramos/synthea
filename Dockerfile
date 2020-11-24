@@ -1,12 +1,4 @@
-FROM java:8
-
-RUN curl -sL https://deb.nodesource.com/setup_9.x | bash
-RUN apt-get -y -q install nodejs
-
-COPY ./synthea /synthea
-
-RUN mkdir /app
-RUN mkdir /synthea/output
+FROM smartonfhir/synthea
 
 WORKDIR /synthea
 
