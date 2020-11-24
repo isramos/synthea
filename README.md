@@ -1,4 +1,4 @@
-# synthea
+# synthea web service
 
 Static build of Synthea with http interface
 
@@ -35,7 +35,19 @@ b. Just use the existing image **From Docker** (METHOD NOT YET AVAILABLE. Do you
 ```sh
 docker run -d -p 8000:80 smartonfhir/synthea
 
-## Usage
+
+## Usage - Synthea Web Service 
+
+The purpose of this webs service is to generate patients and let you GET the generated files over a REST call instead of accessing the output folder directly. This allow you to have a Synthea web service hosted in the Cloud and where multiple users can access it.
+
+Here's the APIs:
+
+- '/': Help
+- '/post': Generate Patient(s) and put them in a server folder
+- '/get':  Get list of generated patients
+- '/get/{filename}: Retrieve one of the generated patients
+
+### Usage (alternate usage)
 
 The purpose of this is to generate patients so to make use of it, you have to
 mount an external folder where the generated data will go. Here is a quick
@@ -47,18 +59,6 @@ docker run -d -p 8000:80 -v /my/local/patients:/synthea/output smartonfhir/synth
 curl -Ns "http://localhost:8000/post?stu=3&p=100"
 # or just open http://localhost:8000/post?stu=3&p=100 in your browser
 ```
-
-
-### Usage - Synthea Web Service 
-
-The purpose of the webservice mode is to GET the generated files over a REST call instead of accessing the output folder directly. This allow you to have a Syntea web service hosted in the Cloud and where multiple users can access it.
-
-Here's the APIs:
-
-- '/': Help
-- '/post': Generate Patient(s) and put them in a server folder
-- '/get':  Get list of generated patients
-- '/get/{filename}: Retrieve one of the generated patients
 
 ### Development node:
 
