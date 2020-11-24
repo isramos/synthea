@@ -11,7 +11,7 @@ Another feature is that we have simple HTTP server in front of it so instead of
 having to edit config file, one can just visit
 
 ```
-http://localhost/?stu=2&p=10
+http://localhost/post?stu=2&p=10
 ```
 
 where `stu` can be `2` or `3` and `p` is the number of patients to generate.
@@ -19,13 +19,9 @@ Having such http frontend makes the image suitable for docker composed stacks.
 
 ## Installation
 
-a. Just use the existing image **From Docker** (do not use this method, I have not yet published into docker)
-
-```sh
-docker run -d -p 8000:80 smartonfhir/synthea
 ```
 
-b. Build it yourself **From Git**
+a. Build it yourself **From Git**
 
 ```sh
 git clone --recurse-submodules https://github.com/isramos/synthea.git
@@ -33,6 +29,11 @@ cd synthea
 docker build -t my-synthea .
 docker run -d -p 8000:80 my-synthea
 ```
+
+b. Just use the existing image **From Docker** (METHOD NOT YET AVAILABLE. Do you want to help? publish this to docker hub.) 
+
+```sh
+docker run -d -p 8000:80 smartonfhir/synthea
 
 ## Usage
 
@@ -48,7 +49,7 @@ curl -Ns "http://localhost:8000/post?stu=3&p=100"
 ```
 
 
-### Usage - Web Service 
+### Usage - Synthea Web Service 
 
 The purpose of the webservice mode is to GET the generated files over a REST call instead of accessing the output folder directly. This allow you to have a Syntea web service hosted in the Cloud and where multiple users can access it.
 
