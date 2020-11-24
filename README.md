@@ -30,7 +30,7 @@ b. Build it yourself **From Git**
 ```sh
 git clone --recurse-submodules https://github.com/isramos/synthea.git
 cd synthea
-docker docker build -t my-synthea .
+docker build -t my-synthea .
 docker run -d -p 8000:80 my-synthea
 ```
 
