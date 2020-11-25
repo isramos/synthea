@@ -130,6 +130,7 @@ function sendResponse(response, data, statusCode = 200){
   const headers = {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "OPTIONS, POST, GET",
+    "Access-Control-Allow-Headers": "*",
     "Access-Control-Max-Age": 2592000, // 30 days
     "Content-Type": "application/json"
   }
