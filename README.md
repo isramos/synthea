@@ -34,7 +34,7 @@ b. Just use the existing image **From Docker** (METHOD NOT YET AVAILABLE. Do you
 
 ```sh
 docker run -d -p 8000:80 smartonfhir/synthea
-
+```
 
 ## Usage - Synthea Web Service 
 
