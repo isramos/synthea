@@ -77,6 +77,9 @@ const server = http.createServer((request, response) => {
 
   if (process.env.STUBDATA === "true") {
     const now = Date.now()
+    if (!fs.existsSync(outputPath)){
+      fs.mkdirSync(outputPath);
+    }
     fs.writeFileSync(`${outputPath}/test_${now}.json`, JSON.stringify({ createdAt: now}), 'utf-8')
     return sendResponse(response, {status:'New file created.'}, 200)
   }
