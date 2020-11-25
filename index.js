@@ -9,7 +9,7 @@ let outputPath = "/synthea/output/fhir";
 
 if (process.env.STUBDATA === "true") {
   console.log("Local development - using stubdata.");
-  outputPath = "./";
+  outputPath = "./stubdata";
 }
 
 function loadConfig() {
@@ -23,47 +23,62 @@ function saveConfig(data) {
 const server = http.createServer((request, response) => {
   let url = Url.parse(request.url, true);
 
-  console.log("Request Url: ", url.pathname);
+  console.log(`Request ${request.method} Url.pathname: `, url.pathname);
 
-  if (url.pathname === "/") {
-    response.writeHead(200);
-    return response.end(
-      "Help: /post: create patient, /get: list patient files, /get/{filename}.json: get one patient file."
-    );
+  if (request.method === "OPTIONS") {
+    return sendResponse(response, null, 204);
   }
 
-  let data = null;
+  if (url.pathname === "/") {
+    const help = { help: { '/post': 'create patient', '/get': 'list patient files', '/get/sample file.json': 'get one patient file.'}}
+    return sendResponse(response, help, 200);
+  }
+
+  let fsData = null;
   if (url.pathname === "/get") {
     console.log("Getting file names.");
+
     try{
-      data = JSON.stringify(fs.readdirSync(outputPath, "utf-8"));
+      fsData = fs.readdirSync(outputPath, "utf-8");
     } catch(err){
-      data = '[]'
+      fsData = []
     }
     
   } else if (url.pathname.indexOf("/get/") > -1) {
     const fileName = decodeURI( url.pathname.slice("/get/".length) );
     console.log(`Getting file: ${fileName}`);
     try {
-      data = fs.readFileSync(outputPath + "/" + fileName, "utf-8");
-    } catch (err) {}
+      fsData = JSON.parse( fs.readFileSync(outputPath + "/" + fileName, "utf-8"));
+    } catch (err) {
+      fsData = null
+    }
   }
 
-  if (data) {
-    response.writeHead(200, { "Content-Type": "application/json" });
-    response.write(data);
-    return response.end();
+  if (fsData) {
+    return sendResponse(response, {data:fsData}, 200)
+  }
+
+  if (url.pathname === "/delete") {
+    fsData = fs.readdirSync(outputPath, "utf-8");
+    fsData.forEach( file => {
+      const fileWithPath = `${outputPath}/${file}`
+      try {
+        fs.unlinkSync(fileWithPath)
+      } catch(err) {
+        console.error(err)
+      }
+    })
+    return sendResponse(response, {status: 'Delete complete.', files: fsData}, 200)
   }
 
   if (url.pathname != "/post") {
-    response.writeHead(404);
-    return response.end("Not Found");
+    return sendResponse(response, {status: 'Not Found'}, 404)
   }
 
   if (process.env.STUBDATA === "true") {
-    return response.end(
-      "Feature not available in local development mode. You must run the docker container"
-    );
+    const now = Date.now()
+    fs.writeFileSync(`${outputPath}/test_${now}.json`, JSON.stringify({ createdAt: now}), 'utf-8')
+    return sendResponse(response, {status:'New file created.'}, 200)
   }
 
   let cfg = loadConfig();
@@ -72,15 +87,13 @@ const server = http.createServer((request, response) => {
   let num = parseInt(query.p || "1", 10);
 
   if (isNaN(num) || !isFinite(num) || num < 1) {
-    response.writeHead(400);
-    return response.end("Invalid p parameter");
+    const errStr = "Invalid p parameter"
+    return sendResponse(response, {status:errStr}, 400)
   }
 
   if (num > 100000) {
-    response.writeHead(400);
-    return response.end(
-      "Invalid p parameter. We cannot generate more than 100000 patients"
-    );
+    const errStr = "Invalid p parameter. We cannot generate more than 100000 patients"
+    return sendResponse(response, {status:errStr}, 400)
   }
 
   cfg["exporter.ccda.export"] = false;
@@ -107,3 +120,21 @@ const server = http.createServer((request, response) => {
 server.listen({ host: "0.0.0.0", port: 80 }, () => {
   console.log(`Synthea server listening on %o`, server.address());
 });
+
+
+function sendResponse(response, data, statusCode = 200){
+
+  const headers = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "OPTIONS, POST, GET",
+    "Access-Control-Max-Age": 2592000, // 30 days
+    "Content-Type": "application/json"
+  }
+
+  response.writeHead(statusCode, headers);
+  if(data){
+    response.write(JSON.stringify(data));
+  }
+  
+  return response.end();
+}

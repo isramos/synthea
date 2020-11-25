@@ -1,4 +1,4 @@
-# synthea web service
+# Synthea Web Service
 
 Static build of Synthea with http interface
 
@@ -62,7 +62,7 @@ curl -Ns "http://localhost:8000/post?stu=3&p=100"
 
 ### Development node:
 
-If you need to change the node.js server code, here's a reminder how to build and run: 
+If you need to change the node.js server code, here's a reminder on how to build and run: 
 
 Build: `docker build -t my-synthea .`
 Run: `docker run -d -p 8000:80 my-synthea`
