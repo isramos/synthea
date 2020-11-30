@@ -39,9 +39,10 @@ const server = http.createServer((request, response) => {
     console.log("Getting file names.");
 
     try{
-      fsData = fs.readdirSync(outputPath, "utf-8");
+      fsData = {}
+      fsData.dir = fs.readdirSync(outputPath, "utf-8");
     } catch(err){
-      fsData = []
+      fsData = {dir: []}
     }
     
   } else if (url.pathname.indexOf("/get/") > -1) {
@@ -55,7 +56,7 @@ const server = http.createServer((request, response) => {
   }
 
   if (fsData) {
-    return sendResponse(response, {data:fsData}, 200)
+    return sendResponse(response, fsData, 200)
   }
 
   if (url.pathname === "/delete") {
